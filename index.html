@@ -152,28 +152,65 @@
     <!-- ========================================== -->
     <!-- SECTION OUTILS : RAT ++ & CUITE CALCULATOR -->
     <!-- ========================================== -->
- <!-- ── PAGE OUTILS ── -->
-    <div id="page-outils" class="page hidden">
+     <!-- ── PAGE RAT ++ (MAJEURE) ── -->
+    <div id="page-ratplusplus" class="page hidden px-4 pb-24 pt-4">
+        <h2 class="text-xl font-black text-white mb-2">🐀 Rat ++ (In-Store)</h2>
+        <p class="text-sm text-gray-400 mb-6">Lis l'étiquette en rayon et découvre si tu te fais arnaquer :</p>
         
-        <!-- RAT ++ -->
-        <div class="mb-8">
-            <h2 class="text-lg font-black text-white mb-2">🐀 Rat ++ (Calcul Manuel)</h2>
-            <p class="text-sm text-gray-400 mb-4">Calcule le ratio d'une bouteille en direct du rayon :</p>
-            
-            <div class="flex flex-col gap-3">
-                <input type="number" id="rat-prix" placeholder="Prix (€)" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-3 text-white placeholder-gray-500">
-                <input type="number" id="rat-vol" placeholder="Volume (en cl)" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-3 text-white placeholder-gray-500">
-                <input type="number" id="rat-deg" placeholder="Degré (%)" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-3 text-white placeholder-gray-500">
-                
-                <button onclick="calculerRat()" class="w-full bg-yellow-500 text-black font-black py-3 rounded-lg mt-2">CALCULER LE RATIO</button>
+        <div class="flex flex-col gap-4">
+            <div>
+                <label class="text-xs font-bold text-gray-400 uppercase">Prix au litre (indiqué sur l'étiquette)</label>
+                <input type="number" id="rat-nouveau-prixL" placeholder="Ex: 15.50 (€/L)" class="w-full mt-1 bg-slate-800 border border-slate-700 rounded-lg p-3 text-white focus:ring-2 focus:ring-yellow-500 outline-none">
             </div>
             
-            <h3 id="rat-resultat" class="text-emerald-400 font-bold text-center mt-4 text-lg"></h3>
+            <div>
+                <label class="text-xs font-bold text-gray-400 uppercase">Degré d'alcool</label>
+                <input type="number" id="rat-nouveau-degre" placeholder="Ex: 37.5 (%)" class="w-full mt-1 bg-slate-800 border border-slate-700 rounded-lg p-3 text-white focus:ring-2 focus:ring-yellow-500 outline-none">
+            </div>
+
+            <div>
+                <label class="text-xs font-bold text-gray-400 uppercase">C'est quoi comme alcool ?</label>
+                <select id="rat-nouveau-cat" class="w-full mt-1 bg-slate-800 border border-slate-700 rounded-lg p-3 text-white focus:ring-2 focus:ring-yellow-500 outline-none">
+                    <option value="bières">🍺 Bière</option>
+                    <option value="vins">🍷 Vin (Rouge, Blanc, Rosé)</option>
+                    <option value="spiritueux">🥃 Alcool Fort (Vodka, Rhum...)</option>
+                </select>
+            </div>
+            
+            <button onclick="calculerRatIntelligent()" class="w-full bg-yellow-500 text-black font-black py-4 rounded-lg mt-2 hover:bg-yellow-400 transition shadow-[0_0_15px_rgba(234,179,8,0.3)]">ANALYSER L'OFFRE</button>
+        </div>
+        
+        <div id="rat-nouveau-resultat" class="hidden mt-6 p-5 bg-slate-800 border-l-4 border-yellow-500 rounded-r-lg shadow-lg">
+            <h3 id="rat-score" class="text-white font-black text-2xl mb-1"></h3>
+            <p id="rat-reco" class="text-sm text-gray-300 mt-3 leading-relaxed"></p>
+        </div>
+    </div>
+
+ <!-- ── PAGE OUTILS ── -->
+    <div id="page-outils" class="page hidden">
+     <hr class="border-slate-800 mb-8">
+     <!-- ── PAGE COMPARER ── -->
+        <div id="page-vs" class="page">
+            <div class="text-center py-6 px-4">
+                <div class="text-4xl mb-3">⚔️</div>
+                <h2 class="text-lg font-black text-white mb-2">Comparer 2 produits</h2>
+                <p class="text-xs text-gray-500 mb-6">Sélectionne des produits depuis le catalogue en cliquant sur les cartes</p>
+            </div>
+                <div id="vs-slots" class="grid grid-cols-2 gap-3 mb-4">
+                    <div id="vs-slot-0" class="bg-slate-900 border-2 border-dashed border-slate-700 rounded-2xl p-4 text-center min-h-[140px] flex flex-col items-center justify-center">
+                        <div class="text-2xl mb-2">➕</div>
+                        <div class="text-[10px] text-gray-600">Produit A</div>
+                    </div>
+                    <div id="vs-slot-1" class="bg-slate-900 border-2 border-dashed border-slate-700 rounded-2xl p-4 text-center min-h-[140px] flex flex-col items-center justify-center">
+                        <div class="text-2xl mb-2">➕</div>
+                        <div class="text-[10px] text-gray-600">Produit B</div>
+                    </div>
+                </div>
+            <div id="vs-result" class="hidden bg-slate-900 rounded-2xl p-4 border border-yellow-500/30 text-center mb-4"></div>
+            <button onclick="resetVS()" class="w-full py-2.5 bg-slate-800 rounded-2xl text-xs text-gray-400 font-bold">🔄 Réinitialiser</button>
         </div>
 
-        <hr class="border-slate-800 mb-8">
-
-        <!-- CUITE CALCULATOR -->
+     <!-- CUITE CALCULATOR -->
         <div class="mb-8">
             <h2 class="text-lg font-black text-white mb-2">🧪 Cuite Calculator</h2>
             <p class="text-sm text-gray-400 mb-4">La science au service de ton foie :</p>
@@ -201,31 +238,12 @@
         </div>
     </div>
 
-    <!-- ── PAGE COMPARER ── -->
-    <div id="page-vs" class="page">
-        <div class="text-center py-6 px-4">
-            <div class="text-4xl mb-3">⚔️</div>
-            <h2 class="text-lg font-black text-white mb-2">Comparer 2 produits</h2>
-            <p class="text-xs text-gray-500 mb-6">Sélectionne des produits depuis le catalogue en cliquant sur les cartes</p>
-        </div>
-        <div id="vs-slots" class="grid grid-cols-2 gap-3 mb-4">
-            <div id="vs-slot-0" class="bg-slate-900 border-2 border-dashed border-slate-700 rounded-2xl p-4 text-center min-h-[140px] flex flex-col items-center justify-center">
-                <div class="text-2xl mb-2">➕</div>
-                <div class="text-[10px] text-gray-600">Produit A</div>
-            </div>
-            <div id="vs-slot-1" class="bg-slate-900 border-2 border-dashed border-slate-700 rounded-2xl p-4 text-center min-h-[140px] flex flex-col items-center justify-center">
-                <div class="text-2xl mb-2">➕</div>
-                <div class="text-[10px] text-gray-600">Produit B</div>
-            </div>
-        </div>
-        <div id="vs-result" class="hidden bg-slate-900 rounded-2xl p-4 border border-yellow-500/30 text-center mb-4"></div>
-        <button onclick="resetVS()" class="w-full py-2.5 bg-slate-800 rounded-2xl text-xs text-gray-400 font-bold">🔄 Réinitialiser</button>
-    </div>
+   
 
 </main>
 
 <!-- ═══════════════ TAB BAR ═══════════════ -->
-<nav class="tab-bar fixed bottom-0 inset-x-0 z-50 flex justify-around items-center px-2 py-2 max-w-480px mx-auto" style="max-width:480px;left:50%;transform:translateX(-50%);">
+<nav class="tab-bar fixed bottom-0 inset-x-0 z-50 flex justify-around items-center px-2 py-2 max-w-480px mx-auto bg-[#1a1a2e]" style="max-width:480px;left:50%;transform:translateX(-50%);">
     <button class="tab-btn active flex flex-col items-center gap-0.5 px-2 py-1" onclick="goPage('home', this)">
         <span class="tab-icon text-xl">🏠</span>
         <span class="text-[9px] font-bold uppercase">Accueil</span>
@@ -234,12 +252,11 @@
         <span class="tab-icon text-xl">📦</span>
         <span class="text-[9px] font-bold uppercase">Catalogue</span>
     </button>
-    <button class="tab-btn flex flex-col items-center gap-0.5 px-2 py-1 text-gray-500" onclick="goPage('vs', this)">
-        <span class="tab-icon text-xl">⚔️</span>
-        <span class="text-[9px] font-bold uppercase">Comparer</span>
+    <!-- 🟢 NOUVEAU BOUTON RAT ++ EN ONGLET MAJEUR 🟢 -->
+    <button class="tab-btn flex flex-col items-center gap-0.5 px-2 py-1 text-gray-500" onclick="goPage('ratplusplus', this)">
+        <span class="tab-icon text-xl">🐀</span>
+        <span class="text-[9px] font-bold uppercase">Rat ++</span>
     </button>
-    
-    <!-- 🟢 LE NOUVEAU BOUTON OUTILS 🟢 -->
     <button class="tab-btn flex flex-col items-center gap-0.5 px-2 py-1 text-gray-500" onclick="goPage('outils', this)">
         <span class="tab-icon text-xl">🧰</span>
         <span class="text-[9px] font-bold uppercase">Outils</span>
