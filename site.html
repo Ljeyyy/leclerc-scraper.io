@@ -2,119 +2,197 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
     <title>AlcoScore</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body { background: #0a0e1a; font-family: 'Segoe UI', sans-serif; }
+        * { -webkit-tap-highlight-color: transparent; }
+        body { background: #080c18; font-family: 'Segoe UI', sans-serif; max-width: 480px; margin: 0 auto; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
-        .glass { background: rgba(10,14,26,0.97); backdrop-filter: blur(16px); border-bottom: 1px solid rgba(255,255,255,0.07); }
-        .card { transition: transform 0.15s, border-color 0.15s; }
-        .card:hover { transform: translateY(-3px); border-color: #eab308 !important; }
-        .gold { border: 2px solid #eab308; box-shadow: 0 0 24px rgba(234,179,8,0.12); }
-        .pill { display: inline-block; padding: 2px 8px; border-radius: 99px; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
-        select { background: #1e293b; color: white; border: 1px solid #334155; border-radius: 8px; padding: 8px 12px; font-size: 12px; outline: none; cursor: pointer; }
-        select:focus { border-color: #eab308; }
+        .glass { background: rgba(8,12,24,0.97); backdrop-filter: blur(20px); border-bottom: 1px solid rgba(255,255,255,0.06); }
+        .card { transition: transform 0.15s, box-shadow 0.15s; }
+        .card:active { transform: scale(0.97); }
+        .gold-glow { box-shadow: 0 0 20px rgba(234,179,8,0.2); border: 1px solid rgba(234,179,8,0.4); }
+        .pill { display: inline-block; padding: 2px 7px; border-radius: 99px; font-size: 8px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
         .badge-bières      { background: rgba(251,191,36,0.15); color: #fbbf24; }
         .badge-vins-rouges { background: rgba(239,68,68,0.15);  color: #f87171; }
         .badge-vins-blancs { background: rgba(250,204,21,0.15); color: #fde047; }
         .badge-vins-rosés  { background: rgba(236,72,153,0.15); color: #f472b6; }
         .badge-spiritueux  { background: rgba(139,92,246,0.15); color: #a78bfa; }
         .badge-champagnes  { background: rgba(56,189,248,0.15); color: #38bdf8; }
-        .stat-box { background: rgba(30,41,59,0.6); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 14px 16px; }
-        .sub-btn { padding: 4px 12px; border-radius: 99px; font-size: 10px; font-weight: 700; text-transform: uppercase; background: rgba(139,92,246,0.15); border: 1px solid rgba(139,92,246,0.3); color: #a78bfa; cursor: pointer; white-space: nowrap; transition: background 0.15s; }
-        .sub-btn:hover, .sub-btn.active { background: rgba(139,92,246,0.4); color: white; }
+        .tab-bar { background: rgba(8,12,24,0.98); border-top: 1px solid rgba(255,255,255,0.07); }
+        .tab-btn { transition: color 0.15s; }
+        .tab-btn.active { color: #eab308; }
+        .tab-btn.active .tab-icon { transform: scale(1.1); }
+        .page { display: none; }
+        .page.active { display: block; }
+        .hero-gradient { background: linear-gradient(135deg, #0f172a 0%, #1e0a3c 50%, #0f172a 100%); }
+        .rank-1 { background: linear-gradient(135deg, rgba(234,179,8,0.15), rgba(234,179,8,0.03)); border: 1px solid rgba(234,179,8,0.3); }
+        .rank-2 { background: linear-gradient(135deg, rgba(148,163,184,0.1), rgba(148,163,184,0.02)); border: 1px solid rgba(148,163,184,0.2); }
+        .rank-3 { background: linear-gradient(135deg, rgba(180,120,60,0.1), rgba(180,120,60,0.02)); border: 1px solid rgba(180,120,60,0.2); }
+        .rank-other { background: rgba(15,23,42,0.8); border: 1px solid rgba(255,255,255,0.05); }
+        select { background: #1e293b; color: white; border: 1px solid #334155; border-radius: 8px; padding: 6px 10px; font-size: 11px; outline: none; }
+        .sub-chip { padding: 5px 12px; border-radius: 99px; font-size: 10px; font-weight: 700; background: rgba(30,41,59,0.8); border: 1px solid rgba(255,255,255,0.08); color: #94a3b8; cursor: pointer; white-space: nowrap; transition: all 0.15s; }
+        .sub-chip.active { background: rgba(139,92,246,0.3); border-color: rgba(139,92,246,0.5); color: #c4b5fd; }
+        .vs-bar { background: linear-gradient(135deg, #854d0e, #713f12); border-top: 2px solid #eab308; }
+        @keyframes fadeUp { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
+        .fade-up { animation: fadeUp 0.25s ease forwards; }
+        .shimmer { background: linear-gradient(90deg, #1e293b 25%, #2d3f55 50%, #1e293b 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; }
+        @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
     </style>
 </head>
-<body class="text-gray-200 pb-36">
+<body class="text-gray-200 pb-20">
 
-    <!-- HEADER -->
-    <header class="sticky top-0 z-50 glass p-4">
-        <div class="max-w-7xl mx-auto">
-            <div class="flex items-center justify-between mb-3">
-                <h1 class="text-lg font-black italic uppercase tracking-widest text-white">
-                    🍾 Alco<span class="text-yellow-400">Score</span>
-                </h1>
-                <div id="stats-count" class="text-xs text-gray-500 font-mono"></div>
+<!-- ═══════════════ HEADER ═══════════════ -->
+<header class="sticky top-0 z-50 glass px-4 pt-4 pb-3">
+    <div class="flex items-center justify-between mb-3">
+        <h1 class="text-xl font-black italic uppercase tracking-widest">
+            🍾 Alco<span class="text-yellow-400">Score</span>
+        </h1>
+        <div id="stats-count" class="text-[10px] text-gray-500 font-mono bg-slate-800 px-2 py-1 rounded-full"></div>
+    </div>
+    <input type="text" id="search" oninput="onSearch()" placeholder="🔍 Vodka, Bordeaux, Karmeliet..."
+        class="w-full bg-slate-900 border border-slate-800 rounded-2xl px-4 py-2.5 text-sm focus:border-yellow-500 outline-none">
+</header>
+
+<!-- ═══════════════ PAGES ═══════════════ -->
+<main class="px-3 pt-4">
+
+    <!-- ── PAGE ACCUEIL ── -->
+    <div id="page-home" class="page active">
+
+        <!-- Hero -->
+        <div class="hero-gradient rounded-3xl p-5 mb-4 relative overflow-hidden">
+            <div class="absolute top-0 right-0 text-[80px] opacity-10 leading-none">🍾</div>
+            <div class="text-[10px] text-purple-400 font-bold uppercase tracking-widest mb-1">Bienvenue sur</div>
+            <div class="text-2xl font-black text-white mb-1">AlcoScore <span class="text-yellow-400">⚡</span></div>
+            <div class="text-xs text-gray-400 leading-relaxed mb-4">
+                Le meilleur rapport qualité/prix parmi <span id="hero-count" class="text-white font-bold">—</span> alcools Leclerc.<br>
+                Trié par <span class="text-yellow-400 font-bold">€/L d'alcool pur</span>.
             </div>
-
-            <input type="text" id="search" oninput="render()" placeholder="🔍 Rechercher... (ex: vodka, vin rouge, Absolut...)"
-                class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm focus:border-yellow-500 outline-none mb-3">
-
-            <div class="flex flex-wrap gap-2 items-center mb-2">
-                <div id="catFilters" class="flex gap-2 overflow-x-auto no-scrollbar flex-1"></div>
-                <select id="sort" onchange="render()">
-                    <option value="ratio_asc">💰 Meilleur ratio</option>
-                    <option value="prix_asc">Prix ↑</option>
-                    <option value="prix_desc">Prix ↓</option>
-                    <option value="degre_desc">Degré ↓</option>
-                </select>
-                <select id="maxprix" onchange="render()">
-                    <option value="9999">Tous prix</option>
-                    <option value="5">Max 5€</option>
-                    <option value="10">Max 10€</option>
-                    <option value="20">Max 20€</option>
-                    <option value="50">Max 50€</option>
-                </select>
+            <div class="grid grid-cols-3 gap-2">
+                <div class="bg-black/30 rounded-xl p-2 text-center">
+                    <div id="stat-total" class="text-lg font-black text-white">—</div>
+                    <div class="text-[8px] text-gray-500 uppercase">Produits</div>
+                </div>
+                <div class="bg-black/30 rounded-xl p-2 text-center">
+                    <div id="stat-ratio" class="text-lg font-black text-green-400">—</div>
+                    <div class="text-[8px] text-gray-500 uppercase">Meilleur ratio</div>
+                </div>
+                <div class="bg-black/30 rounded-xl p-2 text-center">
+                    <div id="stat-cats" class="text-lg font-black text-purple-400">6</div>
+                    <div class="text-[8px] text-gray-500 uppercase">Catégories</div>
+                </div>
             </div>
-
-            <!-- Sous-filtres spiritueux -->
-            <div id="subFilters" class="hidden flex gap-2 overflow-x-auto no-scrollbar pb-1"></div>
         </div>
-    </header>
 
-    <!-- BARRE VS -->
-    <div id="vs-bar" class="fixed bottom-0 inset-x-0 bg-yellow-500 p-4 text-black hidden z-[100]">
-        <div class="max-w-4xl mx-auto">
-            <div class="flex items-center gap-3 mb-2">
-                <div class="flex-1 min-w-0">
-                    <div class="text-[9px] uppercase font-bold opacity-50 mb-0.5">Produit A</div>
-                    <div id="vs1-name" class="text-xs font-black truncate">—</div>
-                    <div id="vs1-ratio" class="text-xl font-black leading-none">—</div>
-                </div>
-                <div class="text-2xl font-black italic opacity-40">VS</div>
-                <div class="flex-1 min-w-0 text-right">
-                    <div class="text-[9px] uppercase font-bold opacity-50 mb-0.5">Produit B</div>
-                    <div id="vs2-name" class="text-xs font-black truncate">—</div>
-                    <div id="vs2-ratio" class="text-xl font-black leading-none">—</div>
-                </div>
-                <button onclick="resetVS()" class="bg-black text-white w-7 h-7 rounded-full text-xs flex-shrink-0 ml-2">✕</button>
+        <!-- Top 10 -->
+        <div class="mb-4">
+            <div class="flex items-center justify-between mb-3">
+                <h2 class="text-xs font-black uppercase tracking-widest text-yellow-400">🏆 Top 10 meilleurs ratios</h2>
+                <select id="top10-cat" onchange="renderTop10()" class="text-[10px]">
+                    <option value="all">Toutes catégories</option>
+                    <option value="bières">🍺 Bières</option>
+                    <option value="vins-rouges">🍷 Vins rouges</option>
+                    <option value="vins-blancs">🥂 Vins blancs</option>
+                    <option value="vins-rosés">🌸 Vins rosés</option>
+                    <option value="spiritueux">🥃 Spiritueux</option>
+                    <option value="champagnes">🍾 Champagnes</option>
+                </select>
             </div>
-            <div id="vs-winner" class="text-center font-black text-sm bg-black text-yellow-400 py-2 px-4 rounded-xl">
-                Sélectionnez un 2ème produit en cliquant sur une carte
-            </div>
+            <div id="top10" class="flex flex-col gap-2"></div>
+        </div>
+
+        <!-- Meilleur par catégorie -->
+        <div class="mb-4">
+            <h2 class="text-xs font-black uppercase tracking-widest text-yellow-400 mb-3">⭐ Meilleur par catégorie</h2>
+            <div id="best-per-cat" class="flex flex-col gap-2"></div>
         </div>
     </div>
 
-    <main class="max-w-7xl mx-auto p-4">
-        <!-- STATS -->
-        <div id="stats-bar" class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8"></div>
-
-        <!-- PODIUMS -->
-        <div id="podiums" class="mb-8"></div>
-
-        <!-- GRILLE -->
-        <div class="flex items-center justify-between mb-4">
-            <h2 class="text-yellow-500 font-black uppercase text-xs tracking-widest">Toutes les références</h2>
-            <span id="grid-count" class="text-xs text-gray-600 font-mono"></span>
+    <!-- ── PAGE CATALOGUE ── -->
+    <div id="page-catalog" class="page">
+        <!-- Filtres catégories -->
+        <div class="flex gap-2 overflow-x-auto no-scrollbar mb-3 pb-1">
+            <button id="btn-all" onclick="setCat('all')" class="px-3 py-1.5 bg-yellow-500 text-black rounded-full whitespace-nowrap font-bold text-[10px]">TOUT</button>
+            <button id="btn-bières" onclick="setCat('bières')" class="cat-btn px-3 py-1.5 bg-slate-800 border border-slate-700 rounded-full whitespace-nowrap text-gray-400 font-bold text-[10px]">🍺 BIÈRES</button>
+            <button id="btn-vins-rouges" onclick="setCat('vins-rouges')" class="cat-btn px-3 py-1.5 bg-slate-800 border border-slate-700 rounded-full whitespace-nowrap text-gray-400 font-bold text-[10px]">🍷 ROUGES</button>
+            <button id="btn-vins-blancs" onclick="setCat('vins-blancs')" class="cat-btn px-3 py-1.5 bg-slate-800 border border-slate-700 rounded-full whitespace-nowrap text-gray-400 font-bold text-[10px]">🥂 BLANCS</button>
+            <button id="btn-vins-rosés" onclick="setCat('vins-rosés')" class="cat-btn px-3 py-1.5 bg-slate-800 border border-slate-700 rounded-full whitespace-nowrap text-gray-400 font-bold text-[10px]">🌸 ROSÉS</button>
+            <button id="btn-spiritueux" onclick="setCat('spiritueux')" class="cat-btn px-3 py-1.5 bg-slate-800 border border-slate-700 rounded-full whitespace-nowrap text-gray-400 font-bold text-[10px]">🥃 SPIRITUEUX</button>
+            <button id="btn-champagnes" onclick="setCat('champagnes')" class="cat-btn px-3 py-1.5 bg-slate-800 border border-slate-700 rounded-full whitespace-nowrap text-gray-400 font-bold text-[10px]">🍾 CHAMPAGNES</button>
         </div>
-        <div id="grid" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3"></div>
-    </main>
+
+        <!-- Sous-filtres spiritueux -->
+        <div id="subFilters" class="hidden flex gap-2 overflow-x-auto no-scrollbar mb-3 pb-1"></div>
+
+        <!-- Tri + prix -->
+        <div class="flex gap-2 mb-3">
+            <select id="sort" onchange="renderCatalog()" class="flex-1">
+                <option value="ratio_asc">💰 Meilleur ratio</option>
+                <option value="prix_asc">Prix ↑</option>
+                <option value="prix_desc">Prix ↓</option>
+                <option value="degre_desc">Degré ↓</option>
+            </select>
+            <select id="maxprix" onchange="renderCatalog()" class="flex-1">
+                <option value="9999">Tous prix</option>
+                <option value="5">Max 5€</option>
+                <option value="10">Max 10€</option>
+                <option value="20">Max 20€</option>
+                <option value="50">Max 50€</option>
+            </select>
+        </div>
+
+        <div class="flex items-center justify-between mb-3">
+            <span class="text-[10px] text-gray-600 font-mono" id="grid-count"></span>
+        </div>
+        <div id="grid" class="grid grid-cols-2 gap-3"></div>
+    </div>
+
+    <!-- ── PAGE COMPARER ── -->
+    <div id="page-vs" class="page">
+        <div class="text-center py-6 px-4">
+            <div class="text-4xl mb-3">⚔️</div>
+            <h2 class="text-lg font-black text-white mb-2">Comparer 2 produits</h2>
+            <p class="text-xs text-gray-500 mb-6">Sélectionne des produits depuis le catalogue en cliquant sur les cartes</p>
+        </div>
+        <div id="vs-slots" class="grid grid-cols-2 gap-3 mb-4">
+            <div id="vs-slot-0" class="bg-slate-900 border-2 border-dashed border-slate-700 rounded-2xl p-4 text-center min-h-[140px] flex flex-col items-center justify-center">
+                <div class="text-2xl mb-2">➕</div>
+                <div class="text-[10px] text-gray-600">Produit A</div>
+            </div>
+            <div id="vs-slot-1" class="bg-slate-900 border-2 border-dashed border-slate-700 rounded-2xl p-4 text-center min-h-[140px] flex flex-col items-center justify-center">
+                <div class="text-2xl mb-2">➕</div>
+                <div class="text-[10px] text-gray-600">Produit B</div>
+            </div>
+        </div>
+        <div id="vs-result" class="hidden bg-slate-900 rounded-2xl p-4 border border-yellow-500/30 text-center mb-4"></div>
+        <button onclick="resetVS()" class="w-full py-2.5 bg-slate-800 rounded-2xl text-xs text-gray-400 font-bold">🔄 Réinitialiser</button>
+    </div>
+
+</main>
+
+<!-- ═══════════════ TAB BAR ═══════════════ -->
+<nav class="tab-bar fixed bottom-0 inset-x-0 z-50 flex justify-around items-center px-4 py-2 max-w-480px mx-auto" style="max-width:480px;left:50%;transform:translateX(-50%);">
+    <button class="tab-btn active flex flex-col items-center gap-0.5 px-4 py-1" onclick="goPage('home', this)">
+        <span class="tab-icon text-xl">🏠</span>
+        <span class="text-[9px] font-bold uppercase">Accueil</span>
+    </button>
+    <button class="tab-btn flex flex-col items-center gap-0.5 px-4 py-1 text-gray-500" onclick="goPage('catalog', this)">
+        <span class="tab-icon text-xl">📦</span>
+        <span class="text-[9px] font-bold uppercase">Catalogue</span>
+    </button>
+    <button class="tab-btn flex flex-col items-center gap-0.5 px-4 py-1 text-gray-500" onclick="goPage('vs', this)">
+        <span class="tab-icon text-xl">⚔️</span>
+        <span class="text-[9px] font-bold uppercase">Comparer</span>
+    </button>
+</nav>
 
 <script>
-let db = [], filter = 'all', subFilter = null, vsSelection = [];
-
-const EMOJIS = {
-    'bières': '🍺', 'vins-rouges': '🍷', 'vins-blancs': '🥂',
-    'vins-rosés': '🌸', 'spiritueux': '🥃', 'champagnes': '🍾'
-};
-
+let db = [], catFilter = 'all', subFilter = null, vsSelection = [];
+const EMOJIS = { 'bières':'🍺','vins-rouges':'🍷','vins-blancs':'🥂','vins-rosés':'🌸','spiritueux':'🥃','champagnes':'🍾' };
 const SOUS_CATS = ['vodka','rhum','whisky','gin','tequila','cognac','anisé','liqueur','autres'];
-
-const SOUS_EMOJIS = {
-    'vodka':'🫙', 'rhum':'🏝️', 'whisky':'🥃', 'gin':'🌿',
-    'tequila':'🌵', 'cognac':'🍂', 'anisé':'⭐', 'liqueur':'🍬', 'autres':'🔮'
-};
+const SOUS_EMOJIS = { 'vodka':'🫙','rhum':'🏝️','whisky':'🥃','gin':'🌿','tequila':'🌵','cognac':'🍂','anisé':'⭐','liqueur':'🍬','autres':'🔮' };
 
 function getSousCategorie(nom) {
     const n = nom.toLowerCase();
@@ -124,25 +202,32 @@ function getSousCategorie(nom) {
     if (n.includes('gin')) return 'gin';
     if (n.includes('tequila') || n.includes('mezcal')) return 'tequila';
     if (n.includes('cognac') || n.includes('armagnac') || n.includes('calvados') || n.includes('brandy')) return 'cognac';
-    if (n.includes('pastis') || n.includes('ricard') || n.includes('anisé') || n.includes('anis') || n.includes('sambuca') || n.includes('pastis')) return 'anisé';
+    if (n.includes('pastis') || n.includes('ricard') || n.includes('anisé') || n.includes('anis') || n.includes('sambuca')) return 'anisé';
     if (n.includes('liqueur') || n.includes('crème') || n.includes('amaretto') || n.includes('baileys') || n.includes('cointreau')) return 'liqueur';
     return 'autres';
 }
 
+// ── Navigation ──
+function goPage(name, btn) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => { b.classList.remove('active'); b.classList.add('text-gray-500'); });
+    document.getElementById('page-' + name).classList.add('active');
+    btn.classList.add('active');
+    btn.classList.remove('text-gray-500');
+    if (name === 'catalog') renderCatalog();
+}
+
+function onSearch() {
+    const q = document.getElementById('search').value.toLowerCase();
+    if (q.length > 0) {
+        goPage('catalog', document.querySelectorAll('.tab-btn')[1]);
+    }
+    renderCatalog();
+}
+
+// ── Chargement ──
 fetch('alcools.json').then(r => r.json()).then(data => {
-
-    // Degrés par défaut pour les produits sans degre_pct
-    const DEFAULT_DEGRE = {
-        'anisé':   45,
-        'vodka':   40,
-        'gin':     40,
-        'tequila': 38,
-        'rhum':    40,
-        'whisky':  40,
-        'cognac':  40,
-        'liqueur': 20,
-    };
-
+    const DEFAULT_DEGRE = { 'anisé':45,'vodka':40,'gin':40,'tequila':38,'rhum':40,'whisky':40,'cognac':40,'liqueur':20 };
     data.forEach(p => {
         if (!p.ratio && p.prix_eur && p.volume_L) {
             const sous = getSousCategorie(p.nom);
@@ -154,60 +239,84 @@ fetch('alcools.json').then(r => r.json()).then(data => {
             }
         }
     });
+    db = data.filter(p => p.ratio);
 
-    db = data;
-    const cats = [...new Set(db.map(p => p.categorie))];
-    const cf = document.getElementById('catFilters');
+    const best = [...db].sort((a,b) => a.ratio - b.ratio)[0];
+    document.getElementById('hero-count').textContent = db.length;
+    document.getElementById('stat-total').textContent = db.length;
+    document.getElementById('stat-ratio').textContent = best ? best.ratio + '€' : '—';
+    document.getElementById('stats-count').textContent = db.length + ' produits';
 
-    // Bouton TOUT
-    const btnAll = document.createElement('button');
-    btnAll.className = "px-4 py-1.5 bg-yellow-500 text-black rounded-full whitespace-nowrap font-bold text-[10px]";
-    btnAll.id = "btn-all";
-    btnAll.innerText = "TOUT";
-    btnAll.onclick = () => setCat('all');
-    cf.appendChild(btnAll);
-
-    // Boutons catégories
-    cats.forEach(c => {
-        const b = document.createElement('button');
-        b.className = "px-4 py-1.5 bg-slate-800 border border-slate-700 rounded-full whitespace-nowrap text-gray-400 font-bold text-[10px] cat-btn";
-        b.id = "btn-" + c;
-        b.innerText = (EMOJIS[c] || '') + ' ' + c.toUpperCase();
-        b.onclick = () => setCat(c);
-        cf.appendChild(b);
-    });
-
-    // Stats globales
-    const withRatio = db.filter(p => p.ratio).sort((a,b) => a.ratio - b.ratio);
-    const best = withRatio[0];
-    document.getElementById('stats-bar').innerHTML = `
-        <div class="stat-box"><div class="text-[10px] text-gray-500 uppercase mb-1">Total produits</div><div class="text-2xl font-black text-white">${db.length}</div></div>
-        <div class="stat-box"><div class="text-[10px] text-gray-500 uppercase mb-1">Avec ratio</div><div class="text-2xl font-black text-green-400">${withRatio.length}</div></div>
-        <div class="stat-box"><div class="text-[10px] text-gray-500 uppercase mb-1">Meilleur ratio</div><div class="text-2xl font-black text-yellow-400">${best ? best.ratio + '€/L' : '—'}</div></div>
-        <div class="stat-box"><div class="text-[10px] text-gray-500 uppercase mb-1">Meilleur produit</div><div class="text-xs font-black text-white mt-1 leading-tight">${best ? best.nom.substring(0,35) + '...' : '—'}</div></div>
-    `;
-
-    render();
+    renderTop10();
+    renderBestPerCat();
+    renderCatalog();
 });
 
+// ── Top 10 ──
+function renderTop10() {
+    const cat = document.getElementById('top10-cat').value;
+    const list = db
+        .filter(p => cat === 'all' || p.categorie === cat)
+        .sort((a,b) => a.ratio - b.ratio)
+        .slice(0, 10);
+
+    const medals = ['🥇','🥈','🥉'];
+    document.getElementById('top10').innerHTML = list.map((p, i) => {
+        const rankClass = i === 0 ? 'rank-1' : i === 1 ? 'rank-2' : i === 2 ? 'rank-3' : 'rank-other';
+        const badge = p.categorie === 'spiritueux'
+            ? `<span class="pill badge-spiritueux">${SOUS_EMOJIS[getSousCategorie(p.nom)]} ${getSousCategorie(p.nom)}</span>`
+            : `<span class="pill badge-${p.categorie}">${EMOJIS[p.categorie]||''} ${p.categorie}</span>`;
+        return `
+        <div class="${rankClass} rounded-2xl p-3 flex items-center gap-3 card cursor-pointer fade-up" onclick='addToVS(${JSON.stringify(p).replace(/'/g,"&#39;")})' style="animation-delay:${i*0.04}s">
+            <div class="text-xl w-8 text-center flex-shrink-0">${medals[i] || '<span class=\'text-gray-600 font-black text-sm\'>#' + (i+1) + '</span>'}</div>
+            <img src="${p.image}" class="h-12 w-12 object-contain bg-white rounded-xl flex-shrink-0" onerror="this.src='https://placehold.co/48x48?text=?'">
+            <div class="flex-1 min-w-0">
+                ${badge}
+                <div class="text-[10px] font-bold text-white leading-tight mt-0.5 truncate">${p.nom}</div>
+                <div class="text-[9px] text-gray-500">${p.prix_eur}€ · ${p.volume_L}L · ${p.degre_pct}%</div>
+            </div>
+            <div class="text-right flex-shrink-0">
+                <div class="text-base font-black text-green-400">${p.ratio}€</div>
+                <div class="text-[7px] text-gray-600">/L pur</div>
+            </div>
+        </div>`;
+    }).join('');
+}
+
+// ── Meilleur par catégorie ──
+function renderBestPerCat() {
+    const cats = ['bières','vins-rouges','vins-blancs','vins-rosés','spiritueux','champagnes'];
+    document.getElementById('best-per-cat').innerHTML = cats.map(c => {
+        const top = db.filter(p => p.categorie === c).sort((a,b) => a.ratio - b.ratio)[0];
+        if (!top) return '';
+        return `
+        <div class="gold-glow rounded-2xl p-3 flex items-center gap-3 card cursor-pointer" onclick='addToVS(${JSON.stringify(top).replace(/'/g,"&#39;")})'>
+            <div class="text-2xl">${EMOJIS[c]}</div>
+            <img src="${top.image}" class="h-12 w-12 object-contain bg-white rounded-xl flex-shrink-0" onerror="this.src='https://placehold.co/48x48?text=?'">
+            <div class="flex-1 min-w-0">
+                <div class="text-[8px] text-yellow-500 font-bold uppercase mb-0.5">${c}</div>
+                <div class="text-[10px] font-bold text-white leading-tight truncate">${top.nom}</div>
+                <div class="text-[9px] text-gray-500">${top.prix_eur}€ · ${top.degre_pct}% · ${top.volume_L}L</div>
+            </div>
+            <div class="text-right flex-shrink-0">
+                <div class="text-lg font-black text-green-400">${top.ratio}€</div>
+                <div class="text-[7px] text-gray-600">/L pur</div>
+            </div>
+        </div>`;
+    }).join('');
+}
+
+// ── Catalogue ──
 function setCat(c) {
-    filter = c;
-    subFilter = null;
-
-    // Highlight bouton actif
-    document.querySelectorAll('.cat-btn').forEach(b => {
-        b.className = "px-4 py-1.5 bg-slate-800 border border-slate-700 rounded-full whitespace-nowrap text-gray-400 font-bold text-[10px] cat-btn";
-    });
-    const btnAll = document.getElementById('btn-all');
-    if (c === 'all') {
-        btnAll.className = "px-4 py-1.5 bg-yellow-500 text-black rounded-full whitespace-nowrap font-bold text-[10px]";
-    } else {
-        btnAll.className = "px-4 py-1.5 bg-slate-800 border border-slate-700 rounded-full whitespace-nowrap text-gray-400 font-bold text-[10px]";
-        const active = document.getElementById('btn-' + c);
-        if (active) active.className = "px-4 py-1.5 bg-yellow-500 text-black rounded-full whitespace-nowrap font-bold text-[10px] cat-btn";
+    catFilter = c; subFilter = null;
+    document.querySelectorAll('.cat-btn').forEach(b => b.className = b.className.replace('bg-yellow-500 text-black', 'bg-slate-800 border border-slate-700 text-gray-400') + ' cat-btn');
+    document.getElementById('btn-all').className = c === 'all'
+        ? 'px-3 py-1.5 bg-yellow-500 text-black rounded-full whitespace-nowrap font-bold text-[10px]'
+        : 'px-3 py-1.5 bg-slate-800 border border-slate-700 rounded-full whitespace-nowrap text-gray-400 font-bold text-[10px]';
+    if (c !== 'all') {
+        const btn = document.getElementById('btn-' + c);
+        if (btn) btn.className = 'cat-btn px-3 py-1.5 bg-yellow-500 text-black rounded-full whitespace-nowrap font-bold text-[10px]';
     }
-
-    // Sous-filtres spiritueux
     const subBar = document.getElementById('subFilters');
     subBar.innerHTML = '';
     if (c === 'spiritueux') {
@@ -215,95 +324,53 @@ function setCat(c) {
         SOUS_CATS.forEach(s => {
             const count = db.filter(p => p.categorie === 'spiritueux' && getSousCategorie(p.nom) === s).length;
             const b = document.createElement('button');
-            b.className = "sub-btn";
-            b.id = "sub-" + s;
-            b.innerText = SOUS_EMOJIS[s] + ' ' + s.toUpperCase() + ' (' + count + ')';
-            b.onclick = () => setSubFilter(s);
+            b.className = 'sub-chip'; b.id = 'sub-' + s;
+            b.textContent = SOUS_EMOJIS[s] + ' ' + s.toUpperCase() + ' (' + count + ')';
+            b.onclick = () => { subFilter = subFilter === s ? null : s; document.querySelectorAll('.sub-chip').forEach(x => x.classList.remove('active')); if (subFilter) b.classList.add('active'); renderCatalog(); };
             subBar.appendChild(b);
         });
-    } else {
-        subBar.classList.add('hidden');
-    }
-
-    render();
+    } else { subBar.classList.add('hidden'); }
+    renderCatalog();
 }
 
-function setSubFilter(s) {
-    subFilter = subFilter === s ? null : s;
-    document.querySelectorAll('.sub-btn').forEach(b => b.classList.remove('active'));
-    if (subFilter) document.getElementById('sub-' + s)?.classList.add('active');
-    render();
-}
-
-function render() {
-    const s = document.getElementById('search').value.toLowerCase().replace(/\s+/g, '-');
-    const sRaw = document.getElementById('search').value.toLowerCase();
+function renderCatalog() {
+    const q = document.getElementById('search').value.toLowerCase();
     const sort = document.getElementById('sort').value;
     const maxprix = parseFloat(document.getElementById('maxprix').value) || 9999;
-
     let list = db.filter(p =>
-        (filter === 'all' || p.categorie === filter) &&
+        (catFilter === 'all' || p.categorie === catFilter) &&
         (!subFilter || getSousCategorie(p.nom) === subFilter) &&
-        (p.nom.toLowerCase().includes(sRaw) || p.categorie.toLowerCase().includes(s)) &&
-        (p.prix_eur === null || p.prix_eur <= maxprix)
+        (p.nom.toLowerCase().includes(q) || p.categorie.toLowerCase().includes(q)) &&
+        p.prix_eur <= maxprix
     );
-
-    if (sort === 'ratio_asc')  list.sort((a,b) => (a.ratio||99999) - (b.ratio||99999));
-    if (sort === 'prix_asc')   list.sort((a,b) => (a.prix_eur||99999) - (b.prix_eur||99999));
-    if (sort === 'prix_desc')  list.sort((a,b) => (b.prix_eur||0) - (a.prix_eur||0));
+    if (sort === 'ratio_asc')  list.sort((a,b) => a.ratio - b.ratio);
+    if (sort === 'prix_asc')   list.sort((a,b) => a.prix_eur - b.prix_eur);
+    if (sort === 'prix_desc')  list.sort((a,b) => b.prix_eur - a.prix_eur);
     if (sort === 'degre_desc') list.sort((a,b) => (b.degre_pct||0) - (a.degre_pct||0));
 
-    document.getElementById('stats-count').innerText = list.length + ' produits';
-    document.getElementById('grid-count').innerText = Math.min(list.length, 300) + ' affichés';
-
-    // Podiums
-    const pods = document.getElementById('podiums');
-    pods.innerHTML = '';
-    if (filter === 'all' && !sRaw) {
-        const cats = [...new Set(db.map(p => p.categorie))];
-        let html = '<h2 class="text-yellow-500 font-black uppercase text-xs tracking-widest mb-4">🏆 Meilleur rapport par catégorie</h2><div class="grid grid-cols-2 md:grid-cols-3 gap-3">';
-        cats.forEach(c => {
-            const top = db.filter(p => p.categorie === c && p.ratio).sort((a,b) => a.ratio - b.ratio)[0];
-            if (!top) return;
-            html += `
-            <div class="gold rounded-xl p-3 flex gap-3 cursor-pointer card" onclick='selectVS(${JSON.stringify(top)})'>
-                <img src="${top.image}" class="h-14 w-14 object-contain bg-white rounded-lg flex-shrink-0" onerror="this.src='https://placehold.co/56x56?text=?'">
-                <div class="min-w-0 flex-1">
-                    <span class="pill badge-${c}">${EMOJIS[c]||''} ${c}</span>
-                    <div class="text-[10px] font-bold leading-tight mt-1 text-white line-clamp-2">${top.nom}</div>
-                    <div class="text-lg font-black text-green-400 leading-none mt-1">${top.ratio}€<span class="text-[8px] text-gray-500 font-normal">/L pur</span></div>
-                    <div class="text-[9px] text-gray-500">${top.prix_eur ?? '—'}€ · ${top.volume_L ?? '—'}L · ${top.degre_pct ?? '—'}%</div>
-                </div>
-            </div>`;
-        });
-        html += '</div>';
-        pods.innerHTML = html;
-    }
-
-    // Grille
+    document.getElementById('grid-count').textContent = Math.min(list.length, 300) + ' / ' + list.length + ' produits';
     const grid = document.getElementById('grid');
     grid.innerHTML = '';
     list.slice(0, 300).forEach(p => {
-        const card = document.createElement('div');
-        card.className = "card bg-slate-900 rounded-xl overflow-hidden border border-slate-800 cursor-pointer";
-        card.onclick = () => selectVS(p);
-       const ratioHtml = p.ratio
-    ? `<div class="text-base font-black text-green-400 leading-none">${p.ratio}€</div>
-       <div class="text-[7px] ${p.ratio_estime ? 'text-orange-500' : 'text-gray-600'}">/L alc. pur${p.ratio_estime ? ' ~' : ''}</div>`
-    : `<div class="text-xs text-gray-600 italic">ratio N/A</div>`;
-        const subLabel = p.categorie === 'spiritueux'
+        const badge = p.categorie === 'spiritueux'
             ? `<span class="pill badge-spiritueux">${SOUS_EMOJIS[getSousCategorie(p.nom)]} ${getSousCategorie(p.nom)}</span>`
             : `<span class="pill badge-${p.categorie}">${EMOJIS[p.categorie]||''} ${p.categorie}</span>`;
+        const card = document.createElement('div');
+        card.className = 'card bg-slate-900 rounded-2xl overflow-hidden border border-slate-800 cursor-pointer';
+        card.onclick = () => addToVS(p);
         card.innerHTML = `
-            <img src="${p.image}" class="w-full h-28 object-contain bg-white p-2" onerror="this.src='https://placehold.co/200x112?text=?'">
+            <img src="${p.image}" class="w-full h-32 object-contain bg-white p-2" onerror="this.src='https://placehold.co/200x128?text=?'">
             <div class="p-2.5">
-                ${subLabel}
-                <div class="text-[9px] font-bold overflow-hidden leading-tight text-white mt-1 mb-2" style="height:2.4em">${p.nom}</div>
+                ${badge}
+                <div class="text-[9px] font-bold text-white leading-tight mt-1 mb-2 h-8 overflow-hidden">${p.nom}</div>
                 <div class="flex justify-between items-end">
-                    <div>${ratioHtml}</div>
+                    <div>
+                        <div class="text-sm font-black text-green-400">${p.ratio}€</div>
+                        <div class="text-[7px] ${p.ratio_estime ? 'text-orange-500' : 'text-gray-600'}">/L pur${p.ratio_estime ? ' ~' : ''}</div>
+                    </div>
                     <div class="text-right">
-                        <div class="text-xs font-black text-gray-300">${p.prix_eur ?? '—'}€</div>
-                        <div class="text-[8px] text-gray-600">${p.degre_pct ?? '—'}% · ${p.volume_L ?? '—'}L</div>
+                        <div class="text-xs font-black text-gray-300">${p.prix_eur}€</div>
+                        <div class="text-[8px] text-gray-600">${p.degre_pct}% · ${p.volume_L}L</div>
                     </div>
                 </div>
             </div>`;
@@ -311,32 +378,49 @@ function render() {
     });
 }
 
-function selectVS(p) {
-    if (vsSelection.length >= 2) vsSelection = [];
+// ── Comparateur ──
+function addToVS(p) {
+    if (vsSelection.length >= 2) return;
     vsSelection.push(p);
-    document.getElementById('vs-bar').classList.remove('hidden');
-    document.getElementById('vs1-name').innerText = vsSelection[0].nom;
-    document.getElementById('vs1-ratio').innerText = vsSelection[0].ratio ? vsSelection[0].ratio + '€/L' : '—';
-    if (vsSelection.length === 2) {
-        document.getElementById('vs2-name').innerText = vsSelection[1].nom;
-        document.getElementById('vs2-ratio').innerText = vsSelection[1].ratio ? vsSelection[1].ratio + '€/L' : '—';
-        if (vsSelection[0].ratio && vsSelection[1].ratio) {
-            const best = vsSelection[0].ratio < vsSelection[1].ratio ? vsSelection[0] : vsSelection[1];
-            const diff = Math.abs(vsSelection[0].ratio - vsSelection[1].ratio).toFixed(2);
-            document.getElementById('vs-winner').innerText = '🏆 GAGNANT : ' + best.nom.substring(0,30) + '... (économie : ' + diff + '€/L)';
-        } else {
-            document.getElementById('vs-winner').innerText = '⚠️ Ratio manquant sur un des produits';
-        }
-    } else {
-        document.getElementById('vs2-name').innerText = '—';
-        document.getElementById('vs2-ratio').innerText = '—';
-        document.getElementById('vs-winner').innerText = 'Sélectionnez un 2ème produit en cliquant sur une carte';
-    }
+    updateVSSlot(vsSelection.length - 1, p);
+    if (vsSelection.length === 2) computeVS();
+    // Switcher vers la page VS
+    goPage('vs', document.querySelectorAll('.tab-btn')[2]);
+}
+
+function updateVSSlot(i, p) {
+    const badge = p.categorie === 'spiritueux'
+        ? `<span class="pill badge-spiritueux">${SOUS_EMOJIS[getSousCategorie(p.nom)]} ${getSousCategorie(p.nom)}</span>`
+        : `<span class="pill badge-${p.categorie}">${EMOJIS[p.categorie]||''} ${p.categorie}</span>`;
+    document.getElementById('vs-slot-' + i).innerHTML = `
+        <img src="${p.image}" class="h-16 w-16 object-contain bg-white rounded-xl mb-2" onerror="this.src='https://placehold.co/64x64?text=?'">
+        ${badge}
+        <div class="text-[9px] font-bold text-white leading-tight mt-1 text-center line-clamp-2">${p.nom}</div>
+        <div class="text-lg font-black text-green-400 mt-1">${p.ratio}€<span class="text-[8px] text-gray-500">/L</span></div>
+        <div class="text-[8px] text-gray-500">${p.prix_eur}€ · ${p.degre_pct}% · ${p.volume_L}L</div>`;
+    document.getElementById('vs-slot-' + i).className = 'bg-slate-900 border border-slate-700 rounded-2xl p-3 text-center min-h-[140px] flex flex-col items-center justify-center';
+}
+
+function computeVS() {
+    const [a, b] = vsSelection;
+    const winner = a.ratio < b.ratio ? a : b;
+    const diff = Math.abs(a.ratio - b.ratio).toFixed(2);
+    const pct = Math.round(Math.abs(a.ratio - b.ratio) / Math.max(a.ratio, b.ratio) * 100);
+    document.getElementById('vs-result').classList.remove('hidden');
+    document.getElementById('vs-result').innerHTML = `
+        <div class="text-2xl mb-1">🏆</div>
+        <div class="text-[10px] text-gray-500 uppercase mb-1">Gagnant</div>
+        <div class="text-sm font-black text-yellow-400 mb-1">${winner.nom.substring(0,40)}...</div>
+        <div class="text-xs text-green-400 font-bold">Économie de ${diff}€/L soit ${pct}% moins cher</div>`;
 }
 
 function resetVS() {
     vsSelection = [];
-    document.getElementById('vs-bar').classList.add('hidden');
+    ['vs-slot-0','vs-slot-1'].forEach((id, i) => {
+        document.getElementById(id).innerHTML = `<div class="text-2xl mb-2">➕</div><div class="text-[10px] text-gray-600">Produit ${i === 0 ? 'A' : 'B'}</div>`;
+        document.getElementById(id).className = 'bg-slate-900 border-2 border-dashed border-slate-700 rounded-2xl p-4 text-center min-h-[140px] flex flex-col items-center justify-center';
+    });
+    document.getElementById('vs-result').classList.add('hidden');
 }
 </script>
 </body>

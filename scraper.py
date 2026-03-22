@@ -4,6 +4,7 @@ import json
 import os
 import requests
 
+
 HEADERS = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36",
     "Accept": "application/json",
@@ -20,9 +21,28 @@ CATEGORIES = {
 }
 
 DEFAULT_DEGRE = {
-    'anisé': 45, 'vodka': 40, 'gin': 40, 'tequila': 38,
-    'rhum': 40, 'whisky': 40, 'cognac': 40, 'liqueur': 20,
+    'anisé': 45, 'pastis': 45, 'vodka': 40, 'gin': 40, 'tequila': 38,
+    'rhum': 40, 'rum': 40, 'whisky': 40, 'whiskey': 40, 'bourbon': 43,
+    'cognac': 40, 'armagnac': 40, 'calvados': 40, 'brandy': 38,
+    'liqueur': 20, 'porto': 19, 'muscat': 15, 'vermouth': 18,
+    'amaretto': 28, 'baileys': 17, 'cointreau': 40, 'triple sec': 38,
 }
+
+DEFAULT_DEGRE_BY_CAT = {
+    'vins-rouges': 13.0,
+    'vins-blancs': 12.0,
+    'vins-rosés': 12.5,
+    'champagnes': 12.5,
+    'bières': 5.0,
+    'spiritueux': 40.0,
+}
+
+PRICE_KEYS = [
+    "priceWithAllTaxes", "price", "salePrice", "unitPrice",
+    "pricePerUnit", "basePrice", "regularPrice", "sellingPrice",
+    "crossedOutPrice", "finalPrice",
+]
+
 
 def get_attribute(attributeGroups, code):
     for group in attributeGroups:
@@ -31,18 +51,18 @@ def get_attribute(attributeGroups, code):
                 return attr.get("value")
     return None
 
+
 def extract_abv(value, label):
-    # 1. Depuis l'attribut dédié
     if value:
         m = re.search(r'(\d+[\.,]\d*)', str(value))
         if m:
             return float(m.group(1).replace(',', '.'))
-    # 2. Depuis le nom : "40% vol", "8,5°", "12.5 % vol"
     patterns = [
         r'(\d+[\.,]\d*)\s*[°%]\s*vol',
         r'(\d+[\.,]\d*)\s*%',
         r'(\d+[\.,]\d*)\s*°',
         r'(\d+[\.,]\d*)\s*vol',
+        r'(\d+[\.,]\d*)\s*alc',
     ]
     for pat in patterns:
         m = re.search(pat, str(label), re.IGNORECASE)
@@ -52,6 +72,7 @@ def extract_abv(value, label):
                 return val
     return None
 
+
 def extract_volume(attributeGroups, label):
     contenu = get_attribute(attributeGroups, "contenu_net")
     unite = get_attribute(attributeGroups, "unite_contenu_net")
@@ -59,11 +80,12 @@ def extract_volume(attributeGroups, label):
         try:
             val = float(str(contenu).replace(',', '.'))
             unite_label = unite.get("label", "cl") if isinstance(unite, dict) else "cl"
-            if unite_label.lower() == "l": return val
-            if unite_label.lower() == "cl": return val / 100
+            if unite_label.lower() == "l":
+                return val
+            if unite_label.lower() == "cl":
+                return val / 100
         except:
             pass
-    # Fallback depuis le nom
     patterns = [
         (r'(\d+[\.,]?\d*)\s*L\b', 'L'),
         (r'(\d+)\s*cl\b', 'cl'),
@@ -73,46 +95,62 @@ def extract_volume(attributeGroups, label):
         m = re.search(pat, label, re.IGNORECASE)
         if m:
             val = float(m.group(1).replace(',', '.'))
-            if unit == 'L' and val < 20: return val
-            if unit == 'cl': return val / 100
-            if unit == 'ml': return val / 1000
+            if unit == 'L' and val < 20:
+                return val
+            if unit == 'cl':
+                return val / 100
+            if unit == 'ml':
+                return val / 1000
     return None
 
+
 def get_price(item):
+    """Cherche le prix dans toute la structure JSON, en centimes ou euros."""
     try:
         stack = [item]
         while stack:
             curr = stack.pop()
             if isinstance(curr, dict):
-                if "priceWithAllTaxes" in curr:
-                    return round(float(curr["priceWithAllTaxes"]) / 100, 2)
-                stack.extend(curr.values())
+                for key in PRICE_KEYS:
+                    if key in curr and curr[key] is not None:
+                        try:
+                            val = float(curr[key])
+                            if val > 0:
+                                # Leclerc stocke parfois en centimes (> 50 = probablement centimes)
+                                return round(val / 100 if val > 500 else val, 2)
+                        except:
+                            pass
+                stack.extend(v for v in curr.values() if isinstance(v, (dict, list)))
             elif isinstance(curr, list):
                 stack.extend(curr)
     except:
         pass
     return None
 
-def guess_degre_from_name(nom):
-    """Devine le degré depuis le nom si tout le reste échoue"""
+
+def guess_degre_from_name(nom, categorie=None):
     n = nom.lower()
     for keyword, degre in DEFAULT_DEGRE.items():
         if keyword in n:
             return degre
+    if categorie and categorie in DEFAULT_DEGRE_BY_CAT:
+        return DEFAULT_DEGRE_BY_CAT[categorie]
     return None
+
 
 def compute_ratio(prix, volume, degre):
     if prix and volume and degre and degre > 0:
         return round(prix / (volume * degre / 100), 2)
     return None
 
+
 def enrich_product(p):
-    """Tente de remplir les champs manquants depuis le nom"""
+    """Tente de remplir les champs manquants depuis le nom."""
     changed = False
     if not p.get("degre_pct"):
         abv = extract_abv(None, p["nom"])
         if not abv:
-            abv = guess_degre_from_name(p["nom"])
+            abv = guess_degre_from_name(p["nom"], p.get("categorie"))
         if abv:
             p["degre_pct"] = abv
             changed = True
@@ -128,6 +166,7 @@ def enrich_product(p):
             p["ratio_estime"] = True
             changed = True
     return changed
+
 
 def scrape_category(cat_name, cat_code, existing_slugs):
     products = []
@@ -177,22 +216,24 @@ def scrape_category(cat_name, cat_code, existing_slugs):
         for item in items:
             try:
                 slug = item.get("slug", "")
-                # Skip si déjà connu
                 if slug in existing_slugs:
                     continue
 
                 nom = item.get("label", "")
                 attr_groups = item.get("attributeGroups", [])
                 prix = get_price(item)
+                if prix is None:
+                    continue
                 volume = extract_volume(attr_groups, nom)
                 abv = extract_abv(get_attribute(attr_groups, "alcool"), nom)
                 image_attr = get_attribute(attr_groups, "image1")
                 image = image_attr.get("url", "") if isinstance(image_attr, dict) else ""
 
                 if not abv:
-                    abv = guess_degre_from_name(nom)
+                    abv = guess_degre_from_name(nom, cat_name)
 
                 ratio = compute_ratio(prix, volume, abv)
+                ratio_estime = (ratio is not None) and (abv == guess_degre_from_name(nom, cat_name))
 
                 p = {
                     "nom": nom,
@@ -202,7 +243,7 @@ def scrape_category(cat_name, cat_code, existing_slugs):
                     "volume_L": volume,
                     "degre_pct": abv,
                     "ratio": ratio,
-                    "ratio_estime": ratio is not None and abv == guess_degre_from_name(nom),
+                    "ratio_estime": ratio_estime,
                     "image": image,
                     "url": f"https://www.e.leclerc/pro/{slug}",
                 }
@@ -253,9 +294,17 @@ print(f"\n🆕 {len(new_products)} nouveaux produits trouvés")
 all_products = list(existing.values()) + new_products
 print(f"📦 Total : {len(all_products)} produits")
 print(f"✅ Avec ratio : {sum(1 for p in all_products if p.get('ratio'))}")
+print(f"❌ Sans ratio : {sum(1 for p in all_products if not p.get('ratio'))}")
+
+# Détail par catégorie
+print("\n📊 Détail par catégorie :")
+from collections import Counter
+cats = Counter(p["categorie"] for p in all_products if not p.get("ratio"))
+for cat, count in cats.most_common():
+    print(f"  {cat} : {count} sans ratio")
 
 # Export
 with open("alcools.json", "w", encoding="utf-8") as f:
     json.dump(all_products, f, ensure_ascii=False, indent=2)
 
-print("💾 alcools.json mis à jour")
+print("\n💾 alcools.json mis à jour")
