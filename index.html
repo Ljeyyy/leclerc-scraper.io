@@ -149,6 +149,58 @@
         <div id="grid" class="grid grid-cols-2 gap-3"></div>
     </div>
 
+    <!-- ========================================== -->
+    <!-- SECTION OUTILS : RAT ++ & CUITE CALCULATOR -->
+    <!-- ========================================== -->
+ <!-- ── PAGE OUTILS ── -->
+    <div id="page-outils" class="page hidden">
+        
+        <!-- RAT ++ -->
+        <div class="mb-8">
+            <h2 class="text-lg font-black text-white mb-2">🐀 Rat ++ (Calcul Manuel)</h2>
+            <p class="text-sm text-gray-400 mb-4">Calcule le ratio d'une bouteille en direct du rayon :</p>
+            
+            <div class="flex flex-col gap-3">
+                <input type="number" id="rat-prix" placeholder="Prix (€)" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-3 text-white placeholder-gray-500">
+                <input type="number" id="rat-vol" placeholder="Volume (en cl)" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-3 text-white placeholder-gray-500">
+                <input type="number" id="rat-deg" placeholder="Degré (%)" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-3 text-white placeholder-gray-500">
+                
+                <button onclick="calculerRat()" class="w-full bg-yellow-500 text-black font-black py-3 rounded-lg mt-2">CALCULER LE RATIO</button>
+            </div>
+            
+            <h3 id="rat-resultat" class="text-emerald-400 font-bold text-center mt-4 text-lg"></h3>
+        </div>
+
+        <hr class="border-slate-800 mb-8">
+
+        <!-- CUITE CALCULATOR -->
+        <div class="mb-8">
+            <h2 class="text-lg font-black text-white mb-2">🧪 Cuite Calculator</h2>
+            <p class="text-sm text-gray-400 mb-4">La science au service de ton foie :</p>
+            
+            <div class="flex flex-col gap-3">
+                <input type="number" id="cuite-poids" placeholder="Ton poids (kg)" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-3 text-white placeholder-gray-500">
+                
+                <select id="cuite-cible" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-3 text-white">
+                    <option value="0.5">🍻 Pompette (0.5 g/L)</option>
+                    <option value="1.0">🥳 Fêtard (1.0 g/L)</option>
+                    <option value="1.5">🏴‍☠️ Naufrage (1.5 g/L)</option>
+                </select>
+
+                <label class="flex items-center gap-2 text-gray-300 mt-2">
+                    <input type="checkbox" id="cuite-repas" class="w-5 h-5 rounded bg-slate-800 border-slate-700 text-yellow-500">
+                    J'ai bien mangé
+                </label>
+                
+                <button onclick="calculerCuite()" class="w-full bg-rose-600 text-white font-black py-3 rounded-lg mt-2">DIAGNOSTIQUER</button>
+            </div>
+            
+            <div id="cuite-resultat" class="hidden mt-6 p-4 bg-slate-800 border-l-4 border-rose-600 rounded-r-lg text-sm text-gray-300">
+                <!-- Les résultats s'afficheront ici -->
+            </div>
+        </div>
+    </div>
+
     <!-- ── PAGE COMPARER ── -->
     <div id="page-vs" class="page">
         <div class="text-center py-6 px-4">
@@ -173,18 +225,24 @@
 </main>
 
 <!-- ═══════════════ TAB BAR ═══════════════ -->
-<nav class="tab-bar fixed bottom-0 inset-x-0 z-50 flex justify-around items-center px-4 py-2 max-w-480px mx-auto" style="max-width:480px;left:50%;transform:translateX(-50%);">
-    <button class="tab-btn active flex flex-col items-center gap-0.5 px-4 py-1" onclick="goPage('home', this)">
+<nav class="tab-bar fixed bottom-0 inset-x-0 z-50 flex justify-around items-center px-2 py-2 max-w-480px mx-auto" style="max-width:480px;left:50%;transform:translateX(-50%);">
+    <button class="tab-btn active flex flex-col items-center gap-0.5 px-2 py-1" onclick="goPage('home', this)">
         <span class="tab-icon text-xl">🏠</span>
         <span class="text-[9px] font-bold uppercase">Accueil</span>
     </button>
-    <button class="tab-btn flex flex-col items-center gap-0.5 px-4 py-1 text-gray-500" onclick="goPage('catalog', this)">
+    <button class="tab-btn flex flex-col items-center gap-0.5 px-2 py-1 text-gray-500" onclick="goPage('catalog', this)">
         <span class="tab-icon text-xl">📦</span>
         <span class="text-[9px] font-bold uppercase">Catalogue</span>
     </button>
-    <button class="tab-btn flex flex-col items-center gap-0.5 px-4 py-1 text-gray-500" onclick="goPage('vs', this)">
+    <button class="tab-btn flex flex-col items-center gap-0.5 px-2 py-1 text-gray-500" onclick="goPage('vs', this)">
         <span class="tab-icon text-xl">⚔️</span>
         <span class="text-[9px] font-bold uppercase">Comparer</span>
+    </button>
+    
+    <!-- 🟢 LE NOUVEAU BOUTON OUTILS 🟢 -->
+    <button class="tab-btn flex flex-col items-center gap-0.5 px-2 py-1 text-gray-500" onclick="goPage('outils', this)">
+        <span class="tab-icon text-xl">🧰</span>
+        <span class="text-[9px] font-bold uppercase">Outils</span>
     </button>
 </nav>
 
@@ -421,6 +479,68 @@ function resetVS() {
         document.getElementById(id).className = 'bg-slate-900 border-2 border-dashed border-slate-700 rounded-2xl p-4 text-center min-h-[140px] flex flex-col items-center justify-center';
     });
     document.getElementById('vs-result').classList.add('hidden');
+}
+
+// --- FONCTION POUR LE RAT ++ ---
+function calculerRat() {
+    let prix = parseFloat(document.getElementById('rat-prix').value);
+    let volCl = parseFloat(document.getElementById('rat-vol').value);
+    let degre = parseFloat(document.getElementById('rat-deg').value);
+    let resultatDiv = document.getElementById('rat-resultat');
+
+    if (!prix || !volCl || !degre || degre <= 0 || volCl <= 0) {
+        resultatDiv.innerText = "❌ Remplis tous les champs correctement.";
+        resultatDiv.style.color = "#ff4444";
+        return;
+    }
+
+    let volL = volCl / 100;
+    let ratio = prix / (volL * (degre / 100));
+    
+    resultatDiv.innerText = `🏆 Ratio : ${ratio.toFixed(2)} € / L d'alcool pur`;
+    resultatDiv.style.color = "#00ffcc";
+}
+
+// --- FONCTION POUR LE CUITE CALCULATOR ---
+function calculerCuite() {
+    let poids = parseFloat(document.getElementById('cuite-poids').value);
+    let cible = parseFloat(document.getElementById('cuite-cible').value);
+    let aMange = document.getElementById('cuite-repas').checked;
+    let resultatDiv = document.getElementById('cuite-resultat');
+
+    if (!poids || poids <= 0) {
+        alert("Poids invalide !");
+        return;
+    }
+
+    // Constantes de Widmark
+    const coeffHomme = 0.7; 
+    const eliminationHeure = 0.15; // Élimination de 0.15g/L par heure
+
+    // 1. Calcul de l'alcool pur en grammes
+    let grammesAlcool = cible * poids * coeffHomme;
+    
+    // 2. Conversion en centilitres d'alcool pur (densité 0.8)
+    let clAlcoolPur = (grammesAlcool / 0.8) / 10;
+    
+    // 3. Exemple d'équivalence (ex: Vodka à 40%)
+    let clVodka = (clAlcoolPur / 0.40).toFixed(1);
+    let clBiere = (clAlcoolPur / 0.05).toFixed(1);
+
+    // 4. Temps
+    let tempsMontee = aMange ? "1 heure" : "30 minutes";
+    let tempsSobriete = (cible / eliminationHeure).toFixed(1);
+
+    // Affichage des résultats
+    resultatDiv.style.display = "block";
+    resultatDiv.innerHTML = `
+        <h3 style="color: #ffaa00; margin-top: 0;">Prescription :</h3>
+        <p>💧 <b>${clAlcoolPur.toFixed(2)} cl d'alcool PUR</b> à ingérer.</p>
+        <p><i>(Soit l'équivalent de ${clVodka} cl de Vodka ou ${clBiere} cl de Bière standard)</i></p>
+        <hr style="border-color: #333; margin: 10px 0;">
+        <p>📈 Pic atteint dans : <b>${tempsMontee}</b></p>
+        <p>📉 Retour à la sobriété dans : <b>${tempsSobriete} heures</b></p>
+    `;
 }
 </script>
 </body>
