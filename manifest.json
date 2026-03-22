@@ -8,12 +8,12 @@
   "orientation": "portrait",
   "icons": [
     {
-      "src": "icon-192.png",
+      "src": "https://placehold.co/192x192/080c18/eab308?text=AS",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "icon-512.png",
+      "src": "https://placehold.co/512x512/080c18/eab308?text=AS",
       "sizes": "512x512",
       "type": "image/png"
     }
