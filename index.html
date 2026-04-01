@@ -480,6 +480,9 @@
         </div>
 
         <div id="cuite-result" class="hidden">
+             <button onclick="resetCuite()" class="btn-gold w-full mb-4" style="font-size:0.85rem;padding:10px">
+                🔄 Modifier / Nouveau calcul
+                </button>
             <div class="result-card mb-3">
                 <div class="section-label mb-2">Résultat estimé</div>
                 <div class="flex items-end gap-2 mb-1">
@@ -917,7 +920,21 @@ function calculerCuite() {
     document.getElementById('cuite-sobriety').textContent = heuresSober > 0 ? soberStr : 'Sobres !';
     document.getElementById('cuite-conduite').textContent = conduiteStr;
     document.getElementById('cuite-conduite').style.color = conduiteHours > 0 ? '#ef4444' : '#4ade80';
+    document.querySelector('.drawer-content').scrollTo({ top: 0, behavior: 'smooth' });}
+
+
+function resetCuite() {
+    document.getElementById('cuite-result').classList.add('hidden');
+    const drawer = document.querySelector('.drawer-content') || document.querySelector('.drawer');
+    if(drawer) drawer.scrollTo({ top: 0, behavior: 'smooth' });
 }
+
+function resetCuite() {
+    document.getElementById('cuite-result').classList.add('hidden');
+    const drawer = document.querySelector('.drawer-content') || document.querySelector('.drawer');
+    if(drawer) drawer.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
 </script>
 </body>
 </html>
